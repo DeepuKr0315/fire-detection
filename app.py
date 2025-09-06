@@ -58,4 +58,4 @@ if start_button:
             st.success("Detection stopped.")
             break
 
-        time.sleep(0.03)  # Add a small delay to manage resource usage
+        time.sleep(0.03)  # Add a small delay to manage resource usageaa
