@@ -9,6 +9,7 @@ ENV/
 *.log
 .streamlit/
 *.pt
+!best.pt
 *.pth
 *.h5
 checkpoints/
