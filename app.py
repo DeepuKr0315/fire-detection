@@ -20,33 +20,56 @@ if 'detection_active' not in st.session_state:
 # Load model with proper error handling
 if 'model' not in st.session_state:
     model_path = 'best.pt'
-    if os.path.exists(model_path):
+    
+    # If model doesn't exist, try to download it
+    if not os.path.exists(model_path):
+        st.info("Model file not found. Attempting to download...")
         try:
-            st.session_state.model = YOLO(model_path)
-            st.success("✅ Model loaded successfully!")
+            import requests
+            # Replace this URL with your actual model hosting URL
+            model_url = "https://your-hosting-service.com/best.pt"  # You need to replace this
             
-            # Display model classes for debugging
-            try:
-                classes = st.session_state.model.names
-                st.info(f"Model classes: {classes}")
+            with st.spinner("Downloading model..."):
+                response = requests.get(model_url)
+                response.raise_for_status()
                 
-                # Find fire class index
-                fire_class_idx = None
-                for idx, class_name in classes.items():
-                    if 'fire' in class_name.lower():
-                        fire_class_idx = idx
-                        break
-                
-                if fire_class_idx is not None:
-                    st.session_state.fire_class_idx = fire_class_idx
-                    st.success(f"Fire class found at index: {fire_class_idx}")
-                else:
-                    st.warning("Fire class not found in model. Using class 0 as default.")
-                    st.session_state.fire_class_idx = 0
+                with open(model_path, 'wb') as f:
+                    f.write(response.content)
                     
-            except Exception as e:
-                st.warning(f"Could not get model class info: {e}")
-                st.session_state.fire_class_idx = 0
+                st.success("Model downloaded successfully!")
+        except Exception as e:
+            st.error(f"❌ Could not download model: {e}")
+            st.info("Please ensure 'best.pt' is available or provide a valid download URL")
+            st.stop()
+    
+    # Load the model
+    try:
+        st.session_state.model = YOLO(model_path)
+        st.success("✅ Model loaded successfully!")
+            
+            # Display model classes for debugging (only in expander)
+            with st.expander("🔧 Developer Info", expanded=False):
+                try:
+                    classes = st.session_state.model.names
+                    st.write(f"Model classes: {classes}")
+                    
+                    # Find fire class index
+                    fire_class_idx = None
+                    for idx, class_name in classes.items():
+                        if 'fire' in class_name.lower():
+                            fire_class_idx = idx
+                            break
+                    
+                    if fire_class_idx is not None:
+                        st.session_state.fire_class_idx = fire_class_idx
+                        st.write(f"Fire class index: {fire_class_idx}")
+                    else:
+                        st.write("Fire class not found. Using class 0 as default.")
+                        st.session_state.fire_class_idx = 0
+                        
+                except Exception as e:
+                    st.write(f"Could not get model class info: {e}")
+                    st.session_state.fire_class_idx = 0
                 
         except Exception as e:
             st.error(f"❌ Error loading model: {str(e)}")
