@@ -46,37 +46,33 @@ if 'model' not in st.session_state:
     try:
         st.session_state.model = YOLO(model_path)
         st.success("✅ Model loaded successfully!")
-            
-            # Display model classes for debugging (only in expander)
-            with st.expander("🔧 Developer Info", expanded=False):
-                try:
-                    classes = st.session_state.model.names
-                    st.write(f"Model classes: {classes}")
-                    
-                    # Find fire class index
-                    fire_class_idx = None
-                    for idx, class_name in classes.items():
-                        if 'fire' in class_name.lower():
-                            fire_class_idx = idx
-                            break
-                    
-                    if fire_class_idx is not None:
-                        st.session_state.fire_class_idx = fire_class_idx
-                        st.write(f"Fire class index: {fire_class_idx}")
-                    else:
-                        st.write("Fire class not found. Using class 0 as default.")
-                        st.session_state.fire_class_idx = 0
-                        
-                except Exception as e:
-                    st.write(f"Could not get model class info: {e}")
-                    st.session_state.fire_class_idx = 0
+        
+        # Display model classes for debugging (only in expander)
+        with st.expander("🔧 Developer Info", expanded=False):
+            try:
+                classes = st.session_state.model.names
+                st.write(f"Model classes: {classes}")
                 
-        except Exception as e:
-            st.error(f"❌ Error loading model: {str(e)}")
-            st.stop()
-    else:
-        st.error(f"❌ Model file '{model_path}' not found!")
-        st.info("Please ensure 'best.pt' is in the same directory as app.py")
+                # Find fire class index
+                fire_class_idx = None
+                for idx, class_name in classes.items():
+                    if 'fire' in class_name.lower():
+                        fire_class_idx = idx
+                        break
+                
+                if fire_class_idx is not None:
+                    st.session_state.fire_class_idx = fire_class_idx
+                    st.write(f"Fire class index: {fire_class_idx}")
+                else:
+                    st.write("Fire class not found. Using class 0 as default.")
+                    st.session_state.fire_class_idx = 0
+                    
+            except Exception as e:
+                st.write(f"Could not get model class info: {e}")
+                st.session_state.fire_class_idx = 0
+                
+    except Exception as e:
+        st.error(f"❌ Error loading model: {str(e)}")
         st.stop()
 
 # Control buttons
